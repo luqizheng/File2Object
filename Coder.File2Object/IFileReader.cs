@@ -1,4 +1,6 @@
-﻿namespace Coder.File2Object
+﻿using System.Collections.Generic;
+
+namespace Coder.File2Object
 {
     public interface IFileReader<TCell>
     {
@@ -10,5 +12,10 @@
         void WriteTo(int row, int cellIndex, string value);
 
         string Convert(TCell cell);
+    }
+
+    public interface IFileTemplateWriter
+    {
+        void WriteTo(string file, IEnumerable<string> titles,int startRow=0);
     }
 }

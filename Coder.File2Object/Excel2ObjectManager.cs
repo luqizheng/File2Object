@@ -5,7 +5,7 @@ namespace Coder.File2Object
 {
     public abstract class Excel2ObjectManager<TEntity> : File2ObjectManager<TEntity, ICell>
     {
-        protected Excel2ObjectManager(int sheetIndex = 0) : base(new ExcelFileReader(sheetIndex))
+        protected Excel2ObjectManager(int sheetIndex = 0) : base(new ExcelFileReader(sheetIndex),new ExcelFileWriter())
         {
         }
     }

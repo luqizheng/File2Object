@@ -13,9 +13,10 @@ namespace Coder.File2Object.Readers
         /// </summary>
         private readonly int _sheetIndex;
 
+        private bool _isXssFile;
+
         private ISheet _sheet;
         private IWorkbook _workbook;
-        private bool _isXssFile;
 
         /// <summary>
         /// </summary>
@@ -35,7 +36,6 @@ namespace Coder.File2Object.Readers
 
         public void Close()
         {
-        
         }
 
         public bool TryRead(int rowIndex, int cellIndex, out ICell cell)
@@ -65,7 +65,7 @@ namespace Coder.File2Object.Readers
             var row = _sheet.GetRow(rowIndex);
             var cell = row.GetCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
             cell.SetCellValue(_isXssFile
-                ? (IRichTextString)new XSSFRichTextString(value)
+                ? (IRichTextString) new XSSFRichTextString(value)
                 : new HSSFRichTextString(value));
         }
 
@@ -80,7 +80,7 @@ namespace Coder.File2Object.Readers
             var fileStream = File.OpenRead(file);
             _isXssFile = file.EndsWith("xlsx");
             var workbook = _isXssFile
-                ? (IWorkbook)new XSSFWorkbook(fileStream)
+                ? (IWorkbook) new XSSFWorkbook(fileStream)
                 : new HSSFWorkbook(new POIFSFileSystem(fileStream));
             fileStream.Close();
             return workbook;

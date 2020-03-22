@@ -1,4 +1,5 @@
 using System;
+using System.IO.Enumeration;
 using Coder.File2Object;
 using Coder.File2Object.Columns;
 using Xunit;
@@ -95,6 +96,21 @@ namespace XUnitFile2Object.Test1
             manager.TryRead(fielName, out var datas, out var resultFile);
 
             Assert.Equal(0, datas.Count);
+        }
+
+
+        [Fact]
+        public void RewriteTemplateFile()
+        {
+            var fielName = "test_template.xlsx";
+            var manager = new StudentAchievementImportManager();
+            manager.Column("编码", f => f.Code);
+            manager.Column("名称", f => f.Name);
+            manager.Column("成绩", f => f.Achievement);
+            manager.Column("注册时间", f => f.AchievementCreateTime);
+            manager.WriteTemplateFile(fielName);
+
+         
         }
     }
 }

@@ -12,10 +12,12 @@ namespace Coder.File2Object
         private static readonly Regex TempalteRegex = new Regex("\\[[\\w\\d]*?\\]");
         private readonly IList<Column<TEntity, TCell>> _columns = new List<Column<TEntity, TCell>>();
         private readonly IFileReader<TCell> _fileReader;
+        private readonly IFileTemplateWriter _fileWriter;
 
-        protected File2ObjectManager(IFileReader<TCell> fileReader)
+        protected File2ObjectManager(IFileReader<TCell> fileReader, IFileTemplateWriter fileWriter)
         {
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
+            _fileWriter = fileWriter ?? throw new ArgumentNullException(nameof(fileWriter));
         }
 
         /// <summary>
@@ -202,6 +204,16 @@ namespace Coder.File2Object
         {
             if (column == null) throw new ArgumentNullException(nameof(column));
             _columns.Add(column);
+        }
+
+        /// <summary>
+        ///     写入template 文件
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="startRow"></param>
+        public void WriteTemplateFile(string file, int startRow = 0)
+        {
+            _fileWriter.WriteTo(file, Titles, startRow);
         }
     }
 }

@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Coder.File2Object;
 using Coder.File2Object.Columns;
+using Xunit;
 
 namespace XUnitFile2Object.Test2
 {
     public enum A
     {
-        a1,
+        ALetter1,
         a2
     }
 
@@ -18,6 +19,7 @@ namespace XUnitFile2Object.Test2
 
     public class Class1
     {
+        [Fact]
         public void TestMultiType()
         {
             var manager = new TypeTestManager();
