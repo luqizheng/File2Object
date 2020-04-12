@@ -48,8 +48,12 @@ namespace XUnitFile2Object.Test2
         public void TestMultiType()
         {
             var manager = new TypeTestManager();
-            manager.ColumnEnumDisplayNameAttribute(f => f.Class1);
-            manager.Column(f => f.Class2);
+            manager.ColumnEnumDisplayAttribute(f => f.Class1,fromDisplayAttribute:true);
+            manager.ColumnEnumDisplayAttribute(f => f.Class2, fromDisplayAttribute: true);
+
+            var isTrue = manager.TryRead("enum_test.xlsx", out var data, out string resultFile);
+            Assert.True(isTrue);
+            Assert.Equal(1, data.Count);
         }
     }
 }
