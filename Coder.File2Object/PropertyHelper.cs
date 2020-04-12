@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Reflection;
+using NPOI.SS.Formula.Functions;
 
 namespace Coder.File2Object
 {
@@ -34,7 +36,19 @@ namespace Coder.File2Object
 
             return property.Name;
         }
+        public static string GetPropertyNameFromDisplay<T, TValue>(Expression<Func<T, TValue>> expression)
+        {
+            var property = GetPropertyInfo(expression);
 
+            DisplayAttribute attr = null;
+            foreach (var att in property.GetCustomAttributes(typeof(DisplayAttribute)))
+            {
+                attr = att as DisplayAttribute;
+                if (attr != null) return attr.Name;
+            }
+
+            return property.Name;
+        }
         public static void SetPropertyValue<T, TValue>(this T target, Expression<Func<T, TValue>> memberLamda,
             TValue value)
         {

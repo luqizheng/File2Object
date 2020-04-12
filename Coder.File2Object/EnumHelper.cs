@@ -6,7 +6,14 @@ using System.Reflection;
 
 namespace Coder.File2Object
 {
-    internal static class EnumHelper
+#if DEBUG
+    public
+#else
+    internal
+#endif
+
+
+    static class EnumHelper
     {
         private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<object, string>> displayNameCache =
             new ConcurrentDictionary<Type, ConcurrentDictionary<object, string>>();
@@ -21,7 +28,7 @@ namespace Coder.File2Object
             {
                 IDictionary<string, object> direct = enumCache[typeof(T)];
                 if (direct.ContainsKey(displayName))
-                    value = (T) direct[displayName];
+                    value = (T)direct[displayName];
                 else
                     return Enum.TryParse(displayName, true, out value);
 
@@ -72,7 +79,7 @@ namespace Coder.File2Object
             var attrs = fieldinfo.GetCustomAttributes(typeof(DisplayAttribute), false);
             if (attrs.Length != 0)
             {
-                var attr = (DisplayAttribute) attrs[0];
+                var attr = (DisplayAttribute)attrs[0];
                 return attr.Name;
             }
 
@@ -93,11 +100,21 @@ namespace Coder.File2Object
         /// </summary>
         public static string GetEnumDisplayName(this Enum value)
         {
+            if (value is null) return string.Empty;
             var key = value.GetType();
             if (displayNameCache.ContainsKey(key))
             {
                 var direct = displayNameCache[key];
-                return direct[value];
+
+                if (direct.ContainsKey(value))
+                {
+                    return direct[value];
+                }
+
+                if (direct.Count != 0)
+                {
+                    return value.ToString();
+                }
             }
 
             BuildCache(value.GetType());
