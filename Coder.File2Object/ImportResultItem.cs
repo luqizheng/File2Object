@@ -22,16 +22,45 @@ namespace Coder.File2Object
         public string GetErrors(string[] titles)
         {
             var sb = new StringBuilder();
-            foreach (var error in CellWarnings) sb.Append("[" + titles[error.CellIndex] + "]" + error.Message + " ");
-            foreach (var error in CellErrors) sb.Append(titles[error.CellIndex] + error.Message + " ");
+            foreach (var error in CellWarnings)
+            {
+                if (titles.Length < error.CellIndex && error.CellIndex >= 0)
+                    throw new ArgumentOutOfRangeException(nameof(error), error.CellIndex + " do not match titles");
+                if (error.CellIndex > 0)
+                    sb.Append("[" + titles[error.CellIndex] + "]" + error.Message + " ");
+                else
+                    sb.Append(error.Message);
+            }
+
+            foreach (var error in CellErrors)
+            {
+                if (titles.Length < error.CellIndex && error.CellIndex >= 0)
+                    throw new ArgumentOutOfRangeException(nameof(error), error.CellIndex + " do not match titles");
+                if (error.CellIndex > 0)
+                    sb.Append("[" + titles[error.CellIndex] + "]" + error.Message + " ");
+                else
+                    sb.Append(error.Message);
+            }
 
             var r = sb.ToString();
             return r;
         }
 
+        public void AddWarning(string message)
+        {
+            if (string.IsNullOrEmpty(message)) throw new ArgumentException("message", nameof(message));
+
+            CellWarnings.Add(new CellInfo
+            {
+                CellIndex = -1,
+                Message = message
+            });
+        }
+
         public void AddWarning(int cellIndex, string message)
         {
             if (string.IsNullOrEmpty(message)) throw new ArgumentException("message", nameof(message));
+
 
             CellWarnings.Add(new CellInfo
             {
@@ -47,6 +76,18 @@ namespace Coder.File2Object
             CellErrors.Add(new CellInfo
             {
                 CellIndex = cellIndex,
+                Message = errorMessage
+            });
+        }
+
+
+        public void AddError(string errorMessage)
+        {
+            if (string.IsNullOrEmpty(errorMessage)) throw new ArgumentException("message", nameof(errorMessage));
+
+            CellErrors.Add(new CellInfo
+            {
+                CellIndex = -1,
                 Message = errorMessage
             });
         }
