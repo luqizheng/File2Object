@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using NPOI.HSSF.UserModel;
+﻿using NPOI.HSSF.UserModel;
 using NPOI.POIFS.FileSystem;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Coder.File2Object.Readers
 {
@@ -28,12 +27,12 @@ namespace Coder.File2Object.Readers
 
 
 
-        private IWorkbook GetWorkbook(string file, out bool isXssFile)
+        private IWorkbook GetWorkbook(string file, out bool isHssf)
         {
-            isXssFile = file.EndsWith("xlsx");
-            IWorkbook workbook = isXssFile
-                ? (IWorkbook)new XSSFWorkbook()
-                : new HSSFWorkbook(new POIFSFileSystem());
+            isHssf = file.EndsWith("xls");
+            IWorkbook workbook = isHssf
+                ? new HSSFWorkbook(new POIFSFileSystem())
+                : (IWorkbook)new XSSFWorkbook();
 
             return workbook;
         }

@@ -4,6 +4,7 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
 using Xunit;
+using XUnitFile2Object.InvestProject;
 
 namespace XUnitFile2Object.Test1
 {
@@ -121,6 +122,27 @@ namespace XUnitFile2Object.Test1
             foreach (var expect in s.Split(','))
             {
                 Assert.Equal(expect, row.Cells[i].StringCellValue);
+                i++;
+            }
+        }
+
+        [Fact]
+        public void TestImport()
+        {
+            var fielName = "projectTempalte.xlsx";
+            var import = new InvestmentProjectImporter();
+            import.WriteTemplateFile(fielName);
+
+            var workbook = (IWorkbook)new XSSFWorkbook(fielName);
+            var sheet = workbook.GetSheetAt(0);
+            var row = sheet.GetRow(0);
+
+            var s = "项目名称,项目编号,旧项目编号,专业大类,专业小类,下达年份,投资金额（万元）,建设内容,状态,负责人,描述,是否已结算";
+            var i = 0;
+            foreach (var expect in s.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var titleName = row.Cells[i].StringCellValue;
+                Assert.Equal(expect, titleName);
                 i++;
             }
         }
