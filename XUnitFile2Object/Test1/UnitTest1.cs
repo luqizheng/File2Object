@@ -1,7 +1,8 @@
-using System;
-using System.IO.Enumeration;
-using Coder.File2Object;
+ï»¿using Coder.File2Object;
 using Coder.File2Object.Columns;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using System;
 using Xunit;
 
 namespace XUnitFile2Object.Test1
@@ -9,7 +10,7 @@ namespace XUnitFile2Object.Test1
     public class StudentAchievement
     {
         public int Code { get; set; }
-       
+
         public string Name { get; set; }
         public decimal Achievement { get; set; }
 
@@ -32,10 +33,10 @@ namespace XUnitFile2Object.Test1
             var fielName = "test1.xlsx";
             var manager = new StudentAchievementImportManager();
 
-            manager.Column("±àÂë", f => f.Code);
-            manager.Column("Ãû³Æ", f => f.Name);
-            manager.Column("³É¼¨", f => f.Achievement);
-            manager.Column("×¢²áÊ±¼ä", f => f.AchievementCreateTime);
+            manager.Column("ç¼–ç ", f => f.Code);
+            manager.Column("åç§°", f => f.Name);
+            manager.Column("æˆç»©", f => f.Achievement);
+            manager.Column("æ³¨å†Œæ—¶é—´", f => f.AchievementCreateTime);
             manager.TryRead(fielName, out var datas, out var resultFile);
 
 
@@ -54,10 +55,10 @@ namespace XUnitFile2Object.Test1
             var fielName = "test_dataType_not_match.xlsx";
             var manager = new StudentAchievementImportManager();
 
-            manager.Column("±àÂë", f => f.Code);
-            manager.Column("Ãû³Æ", f => f.Name);
-            manager.Column("³É¼¨", f => f.Achievement);
-            manager.Column("×¢²áÊ±¼ä", f => f.AchievementCreateTime);
+            manager.Column("ç¼–ç ", f => f.Code);
+            manager.Column("åç§°", f => f.Name);
+            manager.Column("æˆç»©", f => f.Achievement);
+            manager.Column("æ³¨å†Œæ—¶é—´", f => f.AchievementCreateTime);
             manager.TryRead(fielName, out var datas, out var resultFile);
 
 
@@ -73,10 +74,10 @@ namespace XUnitFile2Object.Test1
             var fielName = "test1_require_string.xlsx";
             var manager = new StudentAchievementImportManager();
 
-            manager.Column("±àÂë", f => f.Code);
-            manager.Column("Ãû³Æ", f => f.Name, true);
-            manager.Column("³É¼¨", f => f.Achievement);
-            manager.Column("×¢²áÊ±¼ä", f => f.AchievementCreateTime);
+            manager.Column("ç¼–ç ", f => f.Code);
+            manager.Column("åç§°", f => f.Name, true);
+            manager.Column("æˆç»©", f => f.Achievement);
+            manager.Column("æ³¨å†Œæ—¶é—´", f => f.AchievementCreateTime);
             manager.TryRead(fielName, out var datas, out var resultFile);
 
 
@@ -89,10 +90,10 @@ namespace XUnitFile2Object.Test1
         {
             var fielName = "test_empty.xlsx";
             var manager = new StudentAchievementImportManager();
-            manager.Column("±àÂë", f => f.Code);
-            manager.Column("Ãû³Æ", f => f.Name);
-            manager.Column("³É¼¨", f => f.Achievement);
-            manager.Column("×¢²áÊ±¼ä", f => f.AchievementCreateTime);
+            manager.Column("ç¼–ç ", f => f.Code);
+            manager.Column("åç§°", f => f.Name);
+            manager.Column("æˆç»©", f => f.Achievement);
+            manager.Column("æ³¨å†Œæ—¶é—´", f => f.AchievementCreateTime);
             manager.TryRead(fielName, out var datas, out var resultFile);
 
             Assert.Equal(0, datas.Count);
@@ -104,13 +105,24 @@ namespace XUnitFile2Object.Test1
         {
             var fielName = "test_template.xlsx";
             var manager = new StudentAchievementImportManager();
-            manager.Column("±àÂë", f => f.Code);
-            manager.Column("Ãû³Æ", f => f.Name);
-            manager.Column("³É¼¨", f => f.Achievement);
-            manager.Column("×¢²áÊ±¼ä", f => f.AchievementCreateTime);
+            manager.Column("ç¼–ç ", f => f.Code);
+            manager.Column("åç§°", f => f.Name);
+            manager.Column("æˆç»©", f => f.Achievement);
+            manager.Column("æ³¨å†Œæ—¶é—´", f => f.AchievementCreateTime);
             manager.WriteTemplateFile(fielName);
 
-         
+
+            var workbook = (IWorkbook)new XSSFWorkbook(fielName);
+            var sheet = workbook.GetSheetAt(0);
+            var row = sheet.GetRow(0);
+
+            var s = "ç¼–ç ,åç§°,æˆç»©,æ³¨å†Œæ—¶é—´";
+            var i = 0;
+            foreach (var expect in s.Split(','))
+            {
+                Assert.Equal(expect, row.Cells[i].StringCellValue);
+                i++;
+            }
         }
     }
 }
