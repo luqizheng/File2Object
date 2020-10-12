@@ -1,9 +1,10 @@
-﻿using System;
-using System.IO;
-using NPOI.HSSF.UserModel;
+﻿using NPOI.HSSF.UserModel;
 using NPOI.POIFS.FileSystem;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Coder.File2Object.Readers
 {
@@ -50,6 +51,40 @@ namespace Coder.File2Object.Readers
             return cell != null;
         }
 
+        public bool TryRead(int rowIndex, out IEnumerable<ICell> cells)
+        {
+            var row = _sheet.GetRow(rowIndex);
+            var result = new List<ICell>();
+            if (row == null)
+            {
+                cells = null;
+                return false;
+            }
+
+            for (var cellIndex = 0; cellIndex < row.LastCellNum; cellIndex++)
+            {
+                var cell = row.GetCell(cellIndex, MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                result.Add(cell);
+            }
+
+            cells = result;
+            return true;
+        }
+
+        public bool TryReadInString(int rowIndex, out IEnumerable<string> cellInString)
+        {
+            var result = TryRead(rowIndex, out var cells);
+            var data = new List<string>();
+            foreach (var cell in cells)
+            {
+                cell.SetCellType(CellType.String);
+                data.Add(cell.StringCellValue);
+            }
+
+            cellInString = data;
+            return result;
+        }
+
         public void Write(string file)
         {
             if (file is null) throw new ArgumentNullException(nameof(file));
@@ -65,7 +100,7 @@ namespace Coder.File2Object.Readers
             var row = _sheet.GetRow(rowIndex);
             var cell = row.GetCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
             cell.SetCellValue(_isXssFile
-                ? (IRichTextString) new XSSFRichTextString(value)
+                ? (IRichTextString)new XSSFRichTextString(value)
                 : new HSSFRichTextString(value));
         }
 
@@ -80,7 +115,7 @@ namespace Coder.File2Object.Readers
             var fileStream = File.OpenRead(file);
             _isXssFile = file.EndsWith("xlsx");
             var workbook = _isXssFile
-                ? (IWorkbook) new XSSFWorkbook(fileStream)
+                ? (IWorkbook)new XSSFWorkbook(fileStream)
                 : new HSSFWorkbook(new POIFSFileSystem(fileStream));
             fileStream.Close();
             return workbook;

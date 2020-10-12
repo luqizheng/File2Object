@@ -19,7 +19,7 @@ namespace Coder.File2Object.Columns
 
         public override string Name { get; protected set; }
 
-        private Expression<Func<TEntity, TValue>> Action { get; }
+        protected Expression<Func<TEntity, TValue>> Action { get; }
 
 
         public override bool TrySetValue(TEntity entity, TCell cell, out string errorMessage1)

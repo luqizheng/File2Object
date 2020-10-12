@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Coder.File2Object.Columns;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Coder.File2Object.Columns;
 
 namespace Coder.File2Object
 {
     public abstract class File2ObjectManager<TEntity, TCell>
     {
-        private static readonly Regex TempalteRegex = new Regex("\\[[\\w\\d]*?\\]");
+        private static readonly Regex TemplateRegex = new Regex("\\[[\\w\\d]*?\\]");
         private readonly IList<Column<TEntity, TCell>> _columns = new List<Column<TEntity, TCell>>();
         private readonly IFileReader<TCell> _fileReader;
         private readonly IFileTemplateWriter _fileWriter;
@@ -30,6 +30,9 @@ namespace Coder.File2Object
         {
             get { return _columns.Select(f => f.Name); }
         }
+
+
+        public OtherColumnSetting<TEntity, TCell> OtherColumn { get; set; }
 
         protected abstract TEntity Create();
 
@@ -98,41 +101,36 @@ namespace Coder.File2Object
         private IList<ImportResultItem<TEntity>> ImportResultItems()
         {
             var result = new List<ImportResultItem<TEntity>>();
+
+            // read titles.
+            _fileReader.TryReadInString(TitleRowIndex, out var titleEnum);
+            var titles = titleEnum.ToList();
             var rowIndex = TitleRowIndex + 1;
 
 
             while (TryGetRows(rowIndex, out var cells))
             {
-                var resultItem = new ImportResultItem<TEntity> {Row = rowIndex};
+                var resultItem = new ImportResultItem<TEntity> { Row = rowIndex };
                 var entity = resultItem.Data = Create();
                 result.Add(resultItem);
 
-                for (var index = 0; index < _columns.Count; index++)
+
+                var otherIndex = _columns.Count;
+
+                for (var index = 0; index < titles.Count(); index++)
                 {
+                    if (index >= otherIndex) // 带有扩展列
+                    {
+                        if (OtherColumn == null)
+                            break;
+
+                        OtherColumn.Set(entity, cells[index], titles[index]);
+                        continue;
+                    }
+
                     var cell = cells[index];
                     var column = _columns[index];
-                    if (string.IsNullOrWhiteSpace(cell?.ToString()))
-                    {
-                        //为空的时候。
-
-                        if (column.IsRequire)
-                        {
-                            var errorMessage = BuildErrorMessageByTemplate(column.GetErrorMessageIfEmpty(), column);
-                            resultItem.AddError(index, errorMessage);
-                        }
-                        else
-                        {
-                            column.SetEmptyOrNull(entity);
-                        }
-                    }
-                    else
-                    {
-                        if (!column.TrySetValue(entity, cell, out var errorMessage))
-                        {
-                            errorMessage = BuildErrorMessageByTemplate(errorMessage, column);
-                            resultItem.AddError(index, errorMessage);
-                        }
-                    }
+                    SetEntityByColumn(cell, column, resultItem, index, entity);
                 }
 
                 rowIndex++;
@@ -141,9 +139,36 @@ namespace Coder.File2Object
             return result;
         }
 
+        private void SetEntityByColumn(TCell cell, Column<TEntity, TCell> column, ImportResultItem<TEntity> resultItem,
+            int index, TEntity entity)
+        {
+            if (string.IsNullOrWhiteSpace(cell?.ToString()))
+            {
+                //为空的时候。
+
+                if (column.IsRequire)
+                {
+                    var errorMessage = BuildErrorMessageByTemplate(column.GetErrorMessageIfEmpty(), column);
+                    resultItem.AddError(index, errorMessage);
+                }
+                else
+                {
+                    column.SetEmptyOrNull(entity);
+                }
+            }
+            else
+            {
+                if (!column.TrySetValue(entity, cell, out var errorMessage))
+                {
+                    errorMessage = BuildErrorMessageByTemplate(errorMessage, column);
+                    resultItem.AddError(index, errorMessage);
+                }
+            }
+        }
+
         private string BuildErrorMessageByTemplate(string errorMessage, Column<TEntity, TCell> column)
         {
-            return TempalteRegex.Replace(errorMessage, f =>
+            return TemplateRegex.Replace(errorMessage, f =>
             {
                 switch (f.Value)
                 {
@@ -158,34 +183,36 @@ namespace Coder.File2Object
 
         private bool TryGetRows(int rowIndex, out IList<TCell> result)
         {
-            result = new List<TCell>(_columns.Count);
-            var emptyRow = true;
-            for (var cellIndex = 0; cellIndex < _columns.Count; cellIndex++)
-                if (_fileReader.TryRead(rowIndex, cellIndex, out var cell))
-                {
-                    result.Add(cell);
-                    emptyRow = false;
-                }
-                else
-                {
-                    result.Add(default);
-                }
+            result = new List<TCell>();
 
+            var readAgain = _fileReader.TryRead(rowIndex, out IEnumerable<TCell> cells);
+            if (!readAgain)
+                return false;
+            var emptyRow = true;
+
+            foreach (var cell in cells)
+            {
+                result.Add(cell);
+                emptyRow = false;
+            }
             return !emptyRow;
         }
 
         private void CheckTitles()
         {
-            var titles = ReadTitles();
+            var excelTitles = ReadTitles();
             var index = 0;
             foreach (var settingTitle in Titles)
             {
-                var fileTitle = titles[index];
+                var fileTitle = excelTitles[index];
 
-                if (settingTitle != fileTitle) throw new TitleNotMatchSettingException(settingTitle, fileTitle);
+                if (settingTitle != fileTitle)
+                    throw new TitleNotMatchSettingException(settingTitle, fileTitle);
 
                 index++;
             }
+
+
         }
 
         private List<string> ReadTitles()

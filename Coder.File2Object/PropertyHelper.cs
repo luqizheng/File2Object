@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Reflection;
-using NPOI.SS.Formula.Functions;
 
 namespace Coder.File2Object
 {
@@ -36,6 +36,7 @@ namespace Coder.File2Object
 
             return property.Name;
         }
+
         public static string GetPropertyNameFromDisplay<T, TValue>(Expression<Func<T, TValue>> expression)
         {
             var property = GetPropertyInfo(expression);
@@ -49,12 +50,23 @@ namespace Coder.File2Object
 
             return property.Name;
         }
+
         public static void SetPropertyValue<T, TValue>(this T target, Expression<Func<T, TValue>> memberLamda,
             TValue value)
         {
             var property = GetPropertyInfo(memberLamda);
 
             property.SetValue(target, value);
+        }
+
+        public static void SetDictionary<T>(this T target,
+            string key,
+            Expression<Func<T, Dictionary<string, string>>> memberLamda,
+            string value)
+        {
+            var property = GetPropertyInfo(memberLamda);
+            var po = property.GetValue(target) as Dictionary<string, string>;
+            po.TryAdd(key, value);
         }
     }
 }

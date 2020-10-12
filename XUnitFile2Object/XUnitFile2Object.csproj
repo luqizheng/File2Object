@@ -22,6 +22,9 @@
     <None Update="enum_test.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="test1_Extensions.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="test1.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
