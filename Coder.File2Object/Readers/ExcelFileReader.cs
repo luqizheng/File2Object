@@ -24,7 +24,7 @@ namespace Coder.File2Object.Readers
         /// <param name="sheetIndex"></param>
         public ExcelFileReader(int sheetIndex = 0)
         {
-            _sheetIndex = 0;
+            _sheetIndex = sheetIndex;
         }
 
         public void Open(string file)
