@@ -45,10 +45,16 @@ namespace Coder.File2Object.Readers
             cell = null;
             if (row == null) return false;
 
+            try
+            {
+                cell = row.GetCell(cellIndex);
 
-            cell = row.GetCell(cellIndex, MissingCellPolicy.RETURN_BLANK_AS_NULL);
-
-            return cell != null;
+                return cell != null;
+            }
+            catch (MissingFieldException ex)
+            {
+                throw new File2ObjectException($"fail to read cell(index={cellIndex})", ex);
+            }
         }
 
         public bool TryRead(int rowIndex, out IEnumerable<ICell> cells)
@@ -62,10 +68,15 @@ namespace Coder.File2Object.Readers
             }
 
             for (var cellIndex = 0; cellIndex < row.LastCellNum; cellIndex++)
-            {
-                var cell = row.GetCell(cellIndex, MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                result.Add(cell);
-            }
+                try
+                {
+                    var cell = row.GetCell(cellIndex);
+                    result.Add(cell);
+                }
+                catch (MissingFieldException ex)
+                {
+                    throw new File2ObjectException($"fail to read cell(index={cellIndex})", ex);
+                }
 
             cells = result;
             return true;
@@ -98,7 +109,7 @@ namespace Coder.File2Object.Readers
         public void WriteTo(int rowIndex, int cellIndex, string value)
         {
             var row = _sheet.GetRow(rowIndex);
-            var cell = row.GetCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+            var cell = row.GetCell(cellIndex);
             cell.SetCellValue(_isXssFile
                 ? (IRichTextString)new XSSFRichTextString(value)
                 : new HSSFRichTextString(value));

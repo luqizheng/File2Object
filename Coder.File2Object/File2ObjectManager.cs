@@ -185,7 +185,7 @@ namespace Coder.File2Object
         {
             result = new List<TCell>();
 
-            var readAgain = _fileReader.TryRead(rowIndex, out IEnumerable<TCell> cells);
+            var readAgain = _fileReader.TryRead(rowIndex, out var cells);
             if (!readAgain)
                 return false;
             var emptyRow = true;
@@ -195,6 +195,7 @@ namespace Coder.File2Object
                 result.Add(cell);
                 emptyRow = false;
             }
+
             return !emptyRow;
         }
 
@@ -211,20 +212,12 @@ namespace Coder.File2Object
 
                 index++;
             }
-
-
         }
 
         private List<string> ReadTitles()
         {
-            var result = new List<string>();
-            for (var i = 0; i < _columns.Count; i++)
-                if (_fileReader.TryRead(TitleRowIndex, i, out var cell))
-                    result.Add(_fileReader.Convert(cell));
-                else
-                    break;
-
-            return result;
+            var readResult = _fileReader.TryReadInString(TitleRowIndex, out var titles);
+            return readResult ? new List<string>(titles) : new List<string>();
         }
 
         public void Add(Column<TEntity, TCell> column)
