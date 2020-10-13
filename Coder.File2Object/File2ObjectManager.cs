@@ -13,7 +13,7 @@ namespace Coder.File2Object
         private readonly IList<Column<TEntity, TCell>> _columns = new List<Column<TEntity, TCell>>();
         private readonly IFileReader<TCell> _fileReader;
         private readonly IFileTemplateWriter _fileWriter;
-
+        private int _lastColumn = 0;
         protected File2ObjectManager(IFileReader<TCell> fileReader, IFileTemplateWriter fileWriter)
         {
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
@@ -202,6 +202,7 @@ namespace Coder.File2Object
         private void CheckTitles()
         {
             var excelTitles = ReadTitles();
+            _lastColumn = excelTitles.Count;
             var index = 0;
             foreach (var settingTitle in Titles)
             {

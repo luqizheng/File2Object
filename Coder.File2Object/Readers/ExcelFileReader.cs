@@ -110,6 +110,10 @@ namespace Coder.File2Object.Readers
         {
             var row = _sheet.GetRow(rowIndex);
             var cell = row.GetCell(cellIndex);
+            if (cell == null)
+            {
+                cell = row.CreateCell(cellIndex);
+            }
             cell.SetCellValue(_isXssFile
                 ? (IRichTextString)new XSSFRichTextString(value)
                 : new HSSFRichTextString(value));
