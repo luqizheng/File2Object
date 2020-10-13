@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="NPOI" Version="2.4.1" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.6.0" />
   </ItemGroup>
 
 </Project>
