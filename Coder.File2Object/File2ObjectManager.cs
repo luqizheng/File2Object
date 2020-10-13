@@ -59,10 +59,8 @@ namespace Coder.File2Object
         public void RewriteResultFile(string resultFile, IList<ImportResultItem<TEntity>> data)
         {
             _fileReader.Open(resultFile);
-
-            var cellIndex = _columns.Count();
             foreach (var importResult in data)
-                _fileReader.WriteTo(importResult.Row, cellIndex, importResult.GetErrors(Titles.ToArray()));
+                _fileReader.WriteTo(importResult.Row, _lastColumn, importResult.GetErrors(Titles.ToArray()));
             _fileReader.Write(resultFile);
         }
 
