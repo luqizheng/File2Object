@@ -9,11 +9,12 @@ namespace Coder.File2Object
 {
     public abstract class File2ObjectManager<TEntity, TCell>
     {
-        private static readonly Regex TemplateRegex = new Regex("\\[[\\w\\d]*?\\]");
+        private static readonly Regex _templateRegex = new Regex("\\[[\\w\\d]*?\\]");
         private readonly IList<Column<TEntity, TCell>> _columns = new List<Column<TEntity, TCell>>();
         private readonly IFileReader<TCell> _fileReader;
         private readonly IFileTemplateWriter _fileWriter;
-        private int _lastColumn = 0;
+        private int _lastColumn;
+
         protected File2ObjectManager(IFileReader<TCell> fileReader, IFileTemplateWriter fileWriter)
         {
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
@@ -115,20 +116,30 @@ namespace Coder.File2Object
 
                 var otherIndex = _columns.Count;
 
-                for (var index = 0; index < titles.Count(); index++)
+                for (var titleIndex = 0; titleIndex < titles.Count(); titleIndex++)
                 {
-                    if (index >= otherIndex) // 带有扩展列
+                    if (titleIndex >= otherIndex) // 带有扩展列
                     {
                         if (OtherColumn == null)
                             break;
 
-                        OtherColumn.Set(entity, cells[index], titles[index]);
+                        OtherColumn.Set(entity, cells[titleIndex], titles[titleIndex]);
                         continue;
                     }
 
-                    var cell = cells[index];
-                    var column = _columns[index];
-                    SetEntityByColumn(cell, column, resultItem, index, entity);
+
+                    var column = _columns[titleIndex];
+                    //看一下当前行。
+                    if (titleIndex < cells.Count)
+                    {
+                        var cell = cells[titleIndex];
+                        SetEntityByColumn(cell, column, resultItem, titleIndex, entity);
+                    }
+                    else
+                    {
+                        column.SetEmptyOrNull(entity);
+                    }
+
                 }
 
                 rowIndex++;
@@ -166,7 +177,7 @@ namespace Coder.File2Object
 
         private string BuildErrorMessageByTemplate(string errorMessage, Column<TEntity, TCell> column)
         {
-            return TemplateRegex.Replace(errorMessage, f =>
+            return _templateRegex.Replace(errorMessage, f =>
             {
                 switch (f.Value)
                 {
