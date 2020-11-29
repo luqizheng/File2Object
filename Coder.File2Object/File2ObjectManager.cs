@@ -215,7 +215,9 @@ namespace Coder.File2Object
             var index = 0;
             foreach (var settingTitle in Titles)
             {
-                var fileTitle = excelTitles[index];
+
+
+                var fileTitle = index < _lastColumn ? excelTitles[index] : "";
 
                 if (settingTitle != fileTitle)
                     throw new TitleNotMatchSettingException(settingTitle, fileTitle);

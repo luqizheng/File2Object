@@ -3,17 +3,17 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.4.3</Version>
+    <Version>1.4.4</Version>
 
     <Company>珠海酷迪技术有限公司</Company>
 
-    <PackageTags>import,excel,object</PackageTags>
+    <PackageTags>import,excel,object,导入,npoi</PackageTags>
 
     <RepositoryUrl>https://github.com/luqizheng/File2Object</RepositoryUrl>
 
     <PackageProjectUrl>https://github.com/luqizheng/File2Object</PackageProjectUrl>
 
-    <Description>import excel to obj</Description>
+    <Description>import excel filt to entity</Description>
 
   </PropertyGroup>
 
