@@ -220,7 +220,7 @@ namespace Coder.File2Object
                 var fileTitle = index < _lastColumn ? excelTitles[index] : "";
 
                 if (settingTitle != fileTitle)
-                    throw new TitleNotMatchSettingException(settingTitle, fileTitle);
+                    throw new TitleNotMatchSettingException(settingTitle + $"(列{index})", string.IsNullOrEmpty(fileTitle) ? "空" : fileTitle);
 
                 index++;
             }
