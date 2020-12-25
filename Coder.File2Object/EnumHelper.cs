@@ -7,7 +7,7 @@ using System.Reflection;
 namespace Coder.File2Object
 {
 #if DEBUG
-    public
+    internal
 #else
     internal
 #endif
