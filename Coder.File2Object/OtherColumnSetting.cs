@@ -4,22 +4,32 @@ using System.Linq.Expressions;
 
 namespace Coder.File2Object
 {
-    public abstract class OtherColumnSetting<TEntity, TCell>
+    public interface IOtherColumnSetting
     {
-        private readonly Expression<Func<TEntity, Dictionary<string, string>>> _action;
+        public bool Set(object entity, object cell, string titleName);
+    }
 
-        public OtherColumnSetting(Expression<Func<TEntity, Dictionary<string, string>>> action)
+    public abstract class OtherColumnSetting<TEntity, TCell, TReturnValue> : IOtherColumnSetting
+    {
+        private readonly Expression<Func<TEntity, Dictionary<string, TReturnValue>>> _action;
+
+        public OtherColumnSetting(Expression<Func<TEntity, Dictionary<string, TReturnValue>>> action)
         {
             _action = action;
         }
 
+        bool IOtherColumnSetting.Set(object entity, object cell, string titleName)
+        {
+            return Set((TEntity)entity, (TCell)cell, titleName);
+        }
+
         public bool Set(TEntity entity, TCell cell, string titleName)
         {
-            var result = TryConvert(cell, out string value, out string message);
+            var result = TryConvert(cell, out var value, out var message);
             entity.SetDictionary(titleName, _action, value);
             return result;
         }
 
-        protected abstract bool TryConvert(TCell cell, out string val, out string errorMessage);
+        protected abstract bool TryConvert(TCell cell, out TReturnValue val, out string errorMessage);
     }
 }

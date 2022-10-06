@@ -1,12 +1,16 @@
-﻿using Coder.File2Object.Columns;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Coder.File2Object.Columns;
 
 namespace Coder.File2Object
 {
+    /// <summary>
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TCell"></typeparam>
     public abstract class File2ObjectManager<TEntity, TCell>
     {
         private static readonly Regex _templateRegex = new Regex("\\[[\\w\\d]*?\\]");
@@ -15,6 +19,11 @@ namespace Coder.File2Object
         private readonly IFileTemplateWriter _fileWriter;
         private int _lastColumn;
 
+        /// <summary>
+        /// </summary>
+        /// <param name="fileReader"></param>
+        /// <param name="fileWriter"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         protected File2ObjectManager(IFileReader<TCell> fileReader, IFileTemplateWriter fileWriter)
         {
             _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
@@ -32,11 +41,22 @@ namespace Coder.File2Object
             get { return _columns.Select(f => f.Name); }
         }
 
+        /// <summary>
+        /// </summary>
 
-        public OtherColumnSetting<TEntity, TCell> OtherColumn { get; set; }
+        public IOtherColumnSetting OtherColumn { get; set; }
 
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
         protected abstract TEntity Create();
 
+        /// <summary>
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="data"></param>
+        /// <param name="resultFile"></param>
+        /// <returns></returns>
         public bool TryRead(string file, out IList<ImportResultItem<TEntity>> data, out string resultFile)
         {
             var fileInfo = new FileInfo(file);
@@ -61,10 +81,7 @@ namespace Coder.File2Object
         {
             _fileReader.Open(resultFile);
 
-            foreach (var importResult in data)
-            {
-                _fileReader.WriteTo(importResult.Row, this.Titles.Count(), importResult.GetErrors(Titles.ToArray()));
-            }
+            foreach (var importResult in data) _fileReader.WriteTo(importResult.Row, Titles.Count(), importResult.GetErrors(Titles.ToArray()));
             _fileReader.Write(resultFile);
         }
 
@@ -142,7 +159,6 @@ namespace Coder.File2Object
                     {
                         column.SetEmptyOrNull(entity);
                     }
-
                 }
 
                 rowIndex++;
@@ -218,8 +234,6 @@ namespace Coder.File2Object
             var index = 0;
             foreach (var settingTitle in Titles)
             {
-
-
                 var fileTitle = index < _lastColumn ? excelTitles[index] : "";
 
                 if (settingTitle != fileTitle)

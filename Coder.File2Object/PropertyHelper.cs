@@ -59,13 +59,13 @@ namespace Coder.File2Object
             property.SetValue(target, value);
         }
 
-        public static void SetDictionary<T>(this T target,
+        public static void SetDictionary<T, TReturnValue>(this T target,
             string key,
-            Expression<Func<T, Dictionary<string, string>>> memberLamda,
-            string value)
+            Expression<Func<T, Dictionary<string, TReturnValue>>> memberLamda,
+            TReturnValue value)
         {
             var property = GetPropertyInfo(memberLamda);
-            var po = property.GetValue(target) as Dictionary<string, string>;
+            var po = property.GetValue(target) as Dictionary<string, TReturnValue>;
             po.TryAdd(key, value);
         }
     }
